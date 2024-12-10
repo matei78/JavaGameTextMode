@@ -21,6 +21,10 @@ public abstract class Character1 extends Entity {
         //super(100,100,10,)
     }
 
+    public String getDetails() {
+        return this.name + " " + this.profession + " " + this.currentHealth + " " + this.currentMana + " " + this.level + " " + this.Strength + " " + this.Charisma + " " + this.Dexterity;
+    }
+
    public String toString() {
         return this.name + " " + this.profession + " " + this.XP + " " + this.level;
    }
@@ -44,10 +48,13 @@ public abstract class Character1 extends Entity {
     public void receiveDamage(int damage) {
         Random rand = new Random();
         int x = rand.nextInt(2);
-        if(this.Strength >= 5 && x == 1) //injumatatesc daca are ca atribute secundare
-            this.currentHealth = this.currentHealth - (damage / 2);
+        if(this.Strength >= 5 && x == 1) {//injumatatesc daca are ca atribute secundare
+            damage = damage / 2;
+            this.currentHealth = this.currentHealth - damage;
+        }
         else
             this.currentHealth = this.currentHealth - damage;
+        System.out.println("Player took " + damage + " damage");
     }
     @Override
     public int getDamage(Entity enemy, Spell ability) {

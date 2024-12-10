@@ -10,7 +10,9 @@ public class Cell {
         this.status = status;
     }
 
-
+    public String toString() {
+        return "(" + ox + ", " + oy + ", " + type + ", " + status + ")";
+    }
 
     public void changeType(Cell cell) {
         if(cell.status == 1)

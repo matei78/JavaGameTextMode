@@ -53,7 +53,8 @@ public abstract class Entity implements Battle {
 
     public void AbilitiesToString() {
         for (int i = 0; i < Abilities.size(); i++) {
-            System.out.println(Abilities.get(i).toString());
+            int k = i +1;
+            System.out.println(String.valueOf(k) + ". " + Abilities.get(i).toString());
         }
     }
 
@@ -62,12 +63,12 @@ public abstract class Entity implements Battle {
 
     public abstract void receiveDamage(int damage);
 
-    public int UseAbility(Spell ability, Entity e) {
+    public int UseAbility(Spell ability, Entity e, int nr) {
         int damage = 0;
         if(ability.name == "Ice" && this.currentMana >= ability.minMana) {
             damage = this.getDamage(e, ability);
             e.receiveDamage(damage);
-            this.Abilities.remove(ability);
+            this.Abilities.remove(nr);
             this.currentMana = this.currentMana - ability.minMana;
             return 1;
             //return ability;
@@ -75,7 +76,7 @@ public abstract class Entity implements Battle {
         if(ability.name == "Fire" && this.currentMana >= ability.minMana) {
             damage = this.getDamage(e, ability);
             e.receiveDamage(damage);
-            this.Abilities.remove(ability);
+            this.Abilities.remove(nr);
             this.currentMana = this.currentMana - ability.minMana;
             return 1;
             //return ability;
@@ -83,7 +84,7 @@ public abstract class Entity implements Battle {
         if(ability.name == "Earth" && this.currentMana >= ability.minMana) {
             damage = this.getDamage(e, ability);
             e.receiveDamage(damage);
-            this.Abilities.remove(ability);
+            this.Abilities.remove(nr);
             this.currentMana = this.currentMana - ability.minMana;
             return 1;
             //r/eturn ability;

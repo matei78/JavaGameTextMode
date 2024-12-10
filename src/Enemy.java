@@ -41,12 +41,19 @@ public class Enemy extends Entity {
                 this.Abilities.add(d3);
         }
     }
+
+    public String getEDetails() {
+        return "Enemy " + this.currentHealth + " " + this.currentMana + " " + this.fire + " " + this.earth + " " + this.ice;
+    }
+
         @Override
         public void receiveDamage(int damage) {
             Random rand = new Random();
             int x = rand.nextInt(2);
             if(x == 0)
                 this.currentHealth -= damage;
+            System.out.println(x);
+            System.out.println("Enemy took " + damage + " damage");
         }
         @Override
         public int getDamage(Entity c, Spell ability) {
@@ -62,17 +69,17 @@ public class Enemy extends Entity {
 
             if (ability instanceof Earth) {
                 if (c.earth == false) {
-                    damage = damage + e.damage;
+                    damage = e.damage;
                 }
             }
             if (ability instanceof Ice) {
                 if (c.ice == false) {
-                    damage = damage + i.damage;
+                    damage = i.damage;
                 }
             }
             if (ability instanceof Fire) {
                 if (c.fire == false) {
-                    damage = damage + f.damage;
+                    damage = f.damage;
                 }
             }
             if (damage > 100)

@@ -12,6 +12,7 @@ public class Game {
     public Character1 player;
     public int levelReached;
     public CellEntityType nextCell;
+    public boolean gameOver;
 
 
     public Game() {
@@ -23,6 +24,7 @@ public class Game {
         this.r = null;
         this.player = null;
         this.levelReached = 0;
+        this.gameOver = false;
     }
 
     public String ShowOptions (Cell cell) throws Exception {
@@ -34,17 +36,27 @@ public class Game {
             System.out.println("Go south\n");
         if(oy != 0)
             System.out.println("Go west\n");
-        if(oy != this.Map.length - 1)
+        if(oy != this.Map.width - 1)
             System.out.println("Go east\n");
         Scanner sc = new Scanner(System.in);
         String line = sc.nextLine();
         if(!line.equals("Go north") && !line.equals("Go south") && !line.equals("Go west") && !line.equals("Go east") && !line.equals("Exit"))
             throw new InvalidCommandException("Invalid Command");
+        if(ox == 0 && line.equals("Go north"))
+            throw new InvalidCommandException("Impossible move");
+        if(ox == this.Map.length - 1 && line.equals("Go south"))
+            throw new InvalidCommandException("Impossible move");
+        if(oy == 0 && line.equals("Go west"))
+            throw new InvalidCommandException("Impossible move");
+        if(oy == this.Map.width - 1 && line.equals("Go east"))
+            throw new InvalidCommandException("Impossible move");
+
+
 
         return line;
     }
 
-    public void run() {
+    public void run() throws Exception {
         Account account = null;
         //Character character = null;
         try {
@@ -52,20 +64,23 @@ public class Game {
         } catch (Exception e) {
             System.out.println("Account not available");
         }
-        while(selectedAccount == null) {
+        while(selectedAccount == null && this.gameOver == false) {
             System.out.println("Enter credentials: ");
             Scanner sc = new Scanner(System.in);
             String email = sc.nextLine();
             String password = sc.nextLine();
-            System.out.println(email.trim() + " " + password.trim());
+            if(email.equals("Exit") || password.equals("Exit")) {
+                this.gameOver = true;
+            }
+            if(this.gameOver == true)
+                return;
             Credentials c = new Credentials(email.trim(), password.trim());
             for (int i = 0; i < this.Accounts.size(); i++) {
                 Account a = this.Accounts.get(i);
-                System.out.println(a.information.credentials.toString());
                 if (a.information.credentials.equals(c)) {
-                    System.out.println("You are already logged in");
                     this.selectedAccount = a;
                     System.out.println("Choose your character\n");
+
                     for (int j = 0; j < a.characters.size(); j++) {
                         System.out.println(a.characters.get(j).toString());
                     }
@@ -75,9 +90,21 @@ public class Game {
             if (selectedAccount == null)
                 System.out.println("Invalid Credentials");
         }
-        while(this.w == null && this.r == null && this.m == null) {
-            Scanner sc2 = new Scanner(System.in);
-            String ChosenCharacter = sc2.nextLine(); //
+        while(this.w == null && this.r == null && this.m == null && this.gameOver == false) {
+            String ChosenCharacter = "";
+            while(!ChosenCharacter.equals("Warrior") && !ChosenCharacter.equals("Rogue") && !ChosenCharacter.equals("Mage")) {
+                Scanner sc2 = new Scanner(System.in);
+                ChosenCharacter = sc2.nextLine();
+
+                if (ChosenCharacter.equals("Exit")) {
+                    this.gameOver = true;
+                    break;
+                }
+                if(!ChosenCharacter.equals("Warrior") && !ChosenCharacter.equals("Rogue") && !ChosenCharacter.equals("Mage"))
+                    System.out.println("Invalid Character");
+            }
+            //if(!ChosenCharacter.equals("Warrior") && !ChosenCharacter.equals("Rogue") && !ChosenCharacter.equals("Mage"))
+                //throw new InvalidCommandException("Invalid command");
             for (int k = 0; k < selectedAccount.characters.size(); k++) {
                 if (selectedAccount.characters.get(k).profession.equals(ChosenCharacter))
                     if (selectedAccount.characters.get(k).profession.equals("Warrior")) {
@@ -116,8 +143,10 @@ public class Game {
         boolean valid = false;
         Scanner sc = new Scanner(System.in);
         String number = sc.nextLine();
-        for (int j = 1; j <= this.player.Abilities.size(); j++) {
-            String ts = String.valueOf(j);
+        if(number.equals("Exit"))
+            return -2;
+        for (int j = 0; j < this.player.Abilities.size(); j++) {
+            String ts = String.valueOf(j + 1);
             if(number.equals(ts)) {
                 valid = true;
                 break;
@@ -130,11 +159,51 @@ public class Game {
 
     }
 
+    public void EnemyAttack(Enemy e) {
+        Random rand = new Random();
+        int x = rand.nextInt(2);
+        boolean valid2 = false;
+        if(x == 1 && !e.Abilities.isEmpty()) {
+
+            int y = rand.nextInt(e.Abilities.size()) + 1;
+            String spe = e.Abilities.get(y).name;
+            if(spe.equals("Fire")) {
+                Fire f = new Fire();
+                if(e.UseAbility(f,this.player,y) == 1)
+                    valid2 = true;
+                System.out.println("Enemy attacked with ability Fire!");
+            }
+            else if(spe.equals("Ice")) {
+                Ice i = new Ice();
+                if(e.UseAbility(i,this.player,y) == 1)
+                    valid2 = true;
+                System.out.println("Enemy attacked with ability Ice!");
+            }
+            else if(spe.equals("Earth")) {
+                Earth ea = new Earth();
+                if(e.UseAbility(ea, this.player,y) == 1)
+                    valid2 = true;
+                System.out.println("Enemy attacked with ability Earth!");
+            }
+        }
+        if(x == 0 || (x == 1 && valid2 == false) || (x == 1 && e.Abilities.isEmpty())) {//atac normal
+            int pdmg = e.getDamage(this.player, null);
+            this.player.receiveDamage(pdmg);
+        }
+
+    }
+
     public String Fight(Enemy e) throws Exception {
-        String choice = null;
+        String choice = "";
         int nr = -1;
         boolean usedab = false;
-        while(this.player.currentHealth > 0 && e.currentHealth > 0) {
+        while(this.player.currentHealth > 0 && e.currentHealth > 0 && !choice.equals("Exit")) {
+            System.out.println("Character attacks");
+            System.out.println(this.player.getDetails());
+            System.out.println(e.getEDetails());
+
+            choice = null;
+            nr = -1;
             while(choice == null) {
                 try {
                     choice = showFightOptions();
@@ -144,8 +213,8 @@ public class Game {
                 if(choice.equals("Exit"))
                     return "Exit";
             }
-            if(choice.equals("Ability attack")) {
-                this.player.AbilitiesToString();
+            if(choice.equals("Ability attack") && !this.player.Abilities.isEmpty()) {
+                    this.player.AbilitiesToString();
                 while(nr == -1) {
                     try {
                         nr = chooseAbility();
@@ -154,63 +223,60 @@ public class Game {
                         System.out.println("Invalid Command");
                     }
                 }
-                if(this.player.Abilities.get(nr).name.equals("Fire")) {
+                if(nr == -2)
+                    return "Exit";
+                System.out.println(nr);
+                if(this.player.Abilities.get(nr - 1).name.equals("Fire")) {
                     Fire f = new Fire();
-                    if(this.player.UseAbility(f,e) == 1)
+                    if(this.player.UseAbility(f,e,nr - 1) == 1)
                         usedab = true;
+                    System.out.println("Used Ability fire");
 
                 }
-                if(this.player.Abilities.get(nr).name.equals("Ice")) {
-                    Ice i = new Ice();
-                    if(this.player.UseAbility(i,e) == 1)
-                        usedab = true;
-                }
-                if(this.player.Abilities.get(nr).name.equals("Earth")) {
-                    Earth ea = new Earth();
-                    if(this.player.UseAbility(ea,e) == 1)
-                        usedab = true;
+                else {
+                    if (this.player.Abilities.get(nr - 1).name.equals("Ice")) {
+                        Ice i = new Ice();
+                        if (this.player.UseAbility(i, e, nr - 1) == 1)
+                            usedab = true;
+                        System.out.println("Used Ability ice");
+                    }
+                    else {
+                        if (this.player.Abilities.get(nr - 1).name.equals("Earth")) {
+                            Earth ea = new Earth();
+                            if (this.player.UseAbility(ea, e, nr - 1) == 1)
+                                usedab = true;
+                            System.out.println("Used Ability earth");
+                        }
+                    }
                 }
             }
+            else
+                if(choice.equals("Ability attack") && this.player.Abilities.isEmpty()) {
+                    System.out.println("No available ability. Executing default attack");
+                    choice = "Default attack";
+                }
             if(choice.equals("Default attack") || (choice.equals("Ability attack") && usedab == false)) {
                 int dmg = this.player.getDamage(e, null);
                 e.receiveDamage(dmg);
             }
             //Se incheie turul caracterului incepe atacul inamicului
-        }
-
-        Random rand = new Random();
-        int x = rand.nextInt(2);
-        boolean valid2 = false;
-        if(x == 1) {
-            int y = rand.nextInt(e.Abilities.size()) + 1;
-            String spe = e.Abilities.get(y).name;
-            if(spe.equals("Fire")) {
-                Fire f = new Fire();
-                if(e.UseAbility(f,this.player) == 1)
-                    valid2 = true;
+            if(e.currentHealth <= 0) {
+                System.out.println("You defetead the enemy");
+                break;
             }
-            else if(spe.equals("Ice")) {
-                Ice i = new Ice();
-                if(e.UseAbility(i,this.player) == 1)
-                    valid2 = true;
-            }
-            else if(spe.equals("Earth")) {
-                Earth ea = new Earth();
-                if(e.UseAbility(ea, this.player) == 1)
-                    valid2 = true;
-            }
+            System.out.println("Enemy attacks");
+            this.EnemyAttack(e);
         }
-        if(x == 0 || (x == 1 && valid2 == false)) {//atac normal
-            int pdmg = e.getDamage(this.player, null);
-            this.player.receiveDamage(pdmg);
-        }
-        return null;
+        return choice;
     }
     
     
 
 
     public void Play() throws Exception {
+        if(this.gameOver == true) {
+            return;
+        }
         String option = null;
         int xx = -1;
         int yy = -1;
@@ -219,6 +285,8 @@ public class Game {
         Random rand = new Random();
         int px = rand.nextInt(5) + 5;
         int py = rand.nextInt(5) + 5;
+        px = 5;
+        py = 5;
         this.Map = Grid.Generation(px, py);
         for (int i = 0; i < px; i++)
             for (int j = 0; j < py; j++) {
@@ -237,6 +305,7 @@ public class Game {
             this.player = this.w;
 
         while(this.player.currentHealth > 0 && exit == false) {
+            ver = false;
             this.Map.ShowGrid();
             while(option == null) {
                 try {
@@ -251,30 +320,32 @@ public class Game {
                 break;
             }
             while(ver == false) {
-
                 try {
+                    System.out.println(this.Map.cell.toString());
                     if (option != null) {
                         if(option.equals("Exit")) {
                             exit = true;
                             break;
                         }
                         if (option.equals("Go north")) {
-                            this.nextCell = this.Map.cell.type;
+                            System.out.println(this.nextCell);
+                            this.nextCell = this.Map.get(this.Map.cell.ox - 1).get(this.Map.cell.oy).type;  //salvez tot player
+
                             this.Map.GoNorth();
                             ver = true;
                         }
                         if (option.equals("Go south")) {
-                            this.nextCell = this.Map.cell.type;
+                            this.nextCell = this.Map.get(this.Map.cell.ox + 1).get(this.Map.cell.oy).type;
                             this.Map.GoSouth();
                             ver = true;
                         }
                         if (option.equals("Go west")) {
-                            this.nextCell = this.Map.cell.type;
+                            this.nextCell = this.Map.get(this.Map.cell.ox).get(this.Map.cell.oy - 1).type;
                             this.Map.GoWest();
                             ver = true;
                         }
                         if (option.equals("Go east")) {
-                            this.nextCell = this.Map.cell.type;
+                            this.nextCell = this.Map.get(this.Map.cell.ox).get(this.Map.cell.oy + 1).type;
                             this.Map.GoEast();
                             ver = true;
                         }
@@ -300,10 +371,13 @@ public class Game {
             if(exit == false) {
                 switch (this.nextCell) {
                     case CellEntityType.SANCTUARY -> {
+                        System.out.println("you landed on sanctuary");
                         Random random = new Random();
                         int ran = random.nextInt(9) + 1;
                         this.player.RegenHealth(ran);
                         this.player.RegenMana(ran);
+                        System.out.println("New health: " + this.player.currentHealth);
+                        System.out.println(("New mana: " + this.player.currentMana));
                     }
                     case CellEntityType.ENEMY -> {
                         System.out.println("Battle begin");
@@ -323,7 +397,17 @@ public class Game {
                         }
                     }
                     case CellEntityType.PORTAL -> {
+                        System.out.println("you landed on portal");
                         this.Map = Grid.Generation(this.Map.length, this.Map.width);
+                        for (int i = 0; i < px; i++)
+                            for (int j = 0; j < py; j++) {
+                                if(this.Map.get(i).get(j).type == CellEntityType.PLAYER) {
+                                    xx = i;
+                                    yy = j;
+                                }
+                            }
+
+                        this.Map.cell = new Cell(xx, yy, CellEntityType.PLAYER, 2);
                         this.player.XP = this.player.XP + this.levelReached * 5;
                         this.levelReached++;
                     }

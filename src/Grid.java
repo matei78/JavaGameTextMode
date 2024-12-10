@@ -19,6 +19,8 @@ public class Grid extends ArrayList<ArrayList<Cell>> {
         if(width > 10)
             width = 10;
 
+        //length = 5;
+        //width = 5;
         Random rand = new Random();
         int r;
         int randx_portal = rand.nextInt(length);
@@ -79,7 +81,7 @@ public class Grid extends ArrayList<ArrayList<Cell>> {
         }
     }
 
-    public void GoNorth() throws Exception {
+    public void GoWest() throws Exception {
         if(this.cell.oy == 0)
             throw new ImpossibleMoveException("Forbidden move");
         else {
@@ -91,7 +93,7 @@ public class Grid extends ArrayList<ArrayList<Cell>> {
         }
 
     }
-    public void GoSouth() throws Exception {
+    public void GoEast() throws Exception {
         if(this.cell.oy == this.width - 1)
             throw new ImpossibleMoveException("Forbidden move");
         else {
@@ -102,7 +104,7 @@ public class Grid extends ArrayList<ArrayList<Cell>> {
             this.get(x).set(y, new Cell(x, y, CellEntityType.VOID, 1));
         }
     }
-    public void GoWest() throws Exception {
+    public void GoNorth() throws Exception {
         if(this.cell.ox == 0)
             throw new ImpossibleMoveException("Forbidden move");
         else {
@@ -113,7 +115,7 @@ public class Grid extends ArrayList<ArrayList<Cell>> {
             this.get(x).set(y, new Cell(x, y, CellEntityType.VOID, 1));
         }
     }
-    public void GoEast() throws Exception {
+    public void GoSouth() throws Exception {
         if(this.cell.ox == this.length - 1)
             throw new ImpossibleMoveException("Forbidden move");
         else {
