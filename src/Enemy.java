@@ -6,15 +6,20 @@ public class Enemy extends Entity {
 
         super(100, 100, 10, false, false, false);
         Random rand = new Random();
-        int k = rand.nextInt(2);
+        int k = rand.nextInt(3);
         if (k == 0) {
             this.fire = true;
             this.earth = false;
             this.ice = true;
         }
-        else {
+        else if (k == 1) {
             this.fire = false;
             this.earth = true;
+            this.ice = false;
+        }
+        else if (k == 2) {
+            this.fire = false;
+            this.earth = false;
             this.ice = false;
         }
 
@@ -22,7 +27,7 @@ public class Enemy extends Entity {
         int y = rand.nextInt(100) + 1;
         int z = rand.nextInt(100) + 1;
         this.DefaultDamageGiven = x;
-        this.currentHealth = y;
+        this.currentHealth = 10000;
         this.currentMana = z;
         Spell d1 = new Fire();
         Spell d2 = new Ice();

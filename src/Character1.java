@@ -18,7 +18,6 @@ public abstract class Character1 extends Entity {
         this.Strength = strength;
         this.Charisma = charisma;
         this.Dexterity = dexterity;
-        //super(100,100,10,)
     }
 
     public String getDetails() {
@@ -29,19 +28,16 @@ public abstract class Character1 extends Entity {
         return this.name + " " + this.profession + " " + this.XP + " " + this.level;
    }
     public void UpdateLevel() {
-        if(this.XP >= 5) {
+        if(this.XP >= 10) {
             this.level++;
             this.XP = 0;
         }
     }
 
     public void UpdateAttributes() {
-        if(this.level > 20) {
             this.Strength += 2;
             this.Dexterity += 2;
             this.Charisma += 2;
-            this.level = 0;
-        }
     }
 
     @Override

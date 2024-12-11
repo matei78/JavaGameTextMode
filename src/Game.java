@@ -13,6 +13,8 @@ public class Game {
     public int levelReached;
     public CellEntityType nextCell;
     public boolean gameOver;
+    public boolean Logged;
+    public boolean quitProgram;
 
 
     public Game() {
@@ -25,19 +27,21 @@ public class Game {
         this.player = null;
         this.levelReached = 0;
         this.gameOver = false;
+        this.Logged = false;
+        this.quitProgram = false;
     }
 
     public String ShowOptions (Cell cell) throws Exception {
         int ox = cell.ox;
         int oy = cell.oy;
         if(ox != 0)
-            System.out.println("Go north\n");
+            System.out.println("Go north");
         if(ox != this.Map.length - 1)
-            System.out.println("Go south\n");
+            System.out.println("Go south");
         if(oy != 0)
-            System.out.println("Go west\n");
+            System.out.println("Go west");
         if(oy != this.Map.width - 1)
-            System.out.println("Go east\n");
+            System.out.println("Go east");
         Scanner sc = new Scanner(System.in);
         String line = sc.nextLine();
         if(!line.equals("Go north") && !line.equals("Go south") && !line.equals("Go west") && !line.equals("Go east") && !line.equals("Exit"))
@@ -57,47 +61,56 @@ public class Game {
     }
 
     public void run() throws Exception {
-        Account account = null;
-        //Character character = null;
-        try {
-            this.Accounts = JsonInput.deserializeAccounts();
-        } catch (Exception e) {
-            System.out.println("Account not available");
-        }
-        while(selectedAccount == null && this.gameOver == false) {
-            System.out.println("Enter credentials: ");
-            Scanner sc = new Scanner(System.in);
-            String email = sc.nextLine();
-            String password = sc.nextLine();
-            if(email.equals("Exit") || password.equals("Exit")) {
-                this.gameOver = true;
-            }
-            if(this.gameOver == true)
-                return;
-            Credentials c = new Credentials(email.trim(), password.trim());
-            for (int i = 0; i < this.Accounts.size(); i++) {
-                Account a = this.Accounts.get(i);
-                if (a.information.credentials.equals(c)) {
-                    this.selectedAccount = a;
-                    System.out.println("Choose your character\n");
+        if(this.Logged == false) {
+            Account account = null;
+            //Character character = null;
 
-                    for (int j = 0; j < a.characters.size(); j++) {
-                        System.out.println(a.characters.get(j).toString());
-                    }
-                    break;
-                }
+            try {
+                this.Accounts = JsonInput.deserializeAccounts();
+            } catch (Exception e) {
+                System.out.println("Account not available");
             }
-            if (selectedAccount == null)
-                System.out.println("Invalid Credentials");
+            while (selectedAccount == null && this.gameOver == false) {
+                System.out.println("Enter credentials: ");
+                Scanner sc = new Scanner(System.in);
+                String email = sc.nextLine();
+                String password = sc.nextLine();
+                if (email.equals("Exit") || password.equals("Exit")) {
+                    this.gameOver = true;
+                }
+                if (this.gameOver == true)
+                    return;
+                Credentials c = new Credentials(email.trim(), password.trim());
+                for (int i = 0; i < this.Accounts.size(); i++) {
+                    Account a = this.Accounts.get(i);
+                    if (a.information.credentials.equals(c)) {
+                        this.selectedAccount = a;
+
+
+
+                        break;
+                    }
+                }
+                if (selectedAccount == null)
+                    System.out.println("Invalid Credentials");
+            }
+            if(gameOver == false && selectedAccount != null) {
+                this.Logged = true;
+            }
         }
         while(this.w == null && this.r == null && this.m == null && this.gameOver == false) {
+            for (int j = 0; j < this.selectedAccount.characters.size(); j++) {
+                System.out.println(this.selectedAccount.characters.get(j).toString());
+            }
+            System.out.println("Choose your character\n");
             String ChosenCharacter = "";
             while(!ChosenCharacter.equals("Warrior") && !ChosenCharacter.equals("Rogue") && !ChosenCharacter.equals("Mage")) {
                 Scanner sc2 = new Scanner(System.in);
                 ChosenCharacter = sc2.nextLine();
 
-                if (ChosenCharacter.equals("Exit")) {
+                if (ChosenCharacter.equals("Quit program")) {
                     this.gameOver = true;
+                    this.quitProgram = true;
                     break;
                 }
                 if(!ChosenCharacter.equals("Warrior") && !ChosenCharacter.equals("Rogue") && !ChosenCharacter.equals("Mage"))
@@ -239,24 +252,40 @@ public class Game {
                 System.out.println(nr);
                 if(this.player.Abilities.get(nr - 1).name.equals("Fire")) {
                     Fire f = new Fire();
-                    if(this.player.UseAbility(f,e,nr - 1) == 1)
+                    if(this.player.UseAbility(f,e,nr - 1) == 1) {
                         usedab = true;
-                    //System.out.println("Used Ability fire");
+                        //System.out.println("Used Ability fire");
+                    }
+                    else {
+                        System.out.println("No mana executin Default");
+                        choice = "Default attack";
+                    }
 
                 }
                 else {
                     if (this.player.Abilities.get(nr - 1).name.equals("Ice")) {
                         Ice i = new Ice();
-                        if (this.player.UseAbility(i, e, nr - 1) == 1)
+                        if (this.player.UseAbility(i, e, nr - 1) == 1) {
                             usedab = true;
                         System.out.println("Used Ability ice");
+                        }
+                        else {
+                            System.out.println("No mana executin Default");
+                            choice = "Default attack";
+                        }
+
                     }
                     else {
                         if (this.player.Abilities.get(nr - 1).name.equals("Earth")) {
                             Earth ea = new Earth();
-                            if (this.player.UseAbility(ea, e, nr - 1) == 1)
+                            if (this.player.UseAbility(ea, e, nr - 1) == 1) {
                                 usedab = true;
-                            System.out.println("Used Ability earth");
+                                System.out.println("Used Ability earth");
+                            }
+                            else {
+                                System.out.println("No mana executin Default");
+                                choice = "Default attack";
+                            }
 
                         }
                     }
@@ -348,7 +377,7 @@ public class Game {
                 }
             }
             if(option.equals("Exit")) {
-                exit = true;
+                //exit = true;
                 break;
             }
             while(ver == false) {
@@ -442,6 +471,9 @@ public class Game {
                         this.Map.cell = new Cell(xx, yy, CellEntityType.PLAYER, 2);
                         this.player.XP = this.player.XP + this.levelReached * 5;
                         this.levelReached++;
+                        this.player.UpdateLevel();
+                        if(this.player.level > 50)
+                            this.player.UpdateAttributes(); ////Grija
                     }
                 }
             }

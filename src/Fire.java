@@ -1,5 +1,5 @@
 public class Fire extends Spell {
     public Fire() {
-        super("Fire", 25, 30);
+        super("Fire", 20, 30);
     }
 }
