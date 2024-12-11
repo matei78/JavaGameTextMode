@@ -106,16 +106,17 @@ public class Game {
             //if(!ChosenCharacter.equals("Warrior") && !ChosenCharacter.equals("Rogue") && !ChosenCharacter.equals("Mage"))
                 //throw new InvalidCommandException("Invalid command");
             for (int k = 0; k < selectedAccount.characters.size(); k++) {
-                if (selectedAccount.characters.get(k).profession.equals(ChosenCharacter))
+                if (selectedAccount.characters.get(k).profession.equals(ChosenCharacter)) {
                     if (selectedAccount.characters.get(k).profession.equals("Warrior")) {
                         this.w = new Warrior(selectedAccount.characters.get(k).name, selectedAccount.characters.get(k).level, selectedAccount.characters.get(k).XP);
                     }
-                if (selectedAccount.characters.get(k).profession.equals("Mage")) {
+                    if (selectedAccount.characters.get(k).profession.equals("Mage")) {
 
-                    this.m = new Mage(selectedAccount.characters.get(k).name, selectedAccount.characters.get(k).level, selectedAccount.characters.get(k).XP);
-                }
-                if (selectedAccount.characters.get(k).profession.equals("Rogue")) {
-                    this.r = new Rogue(selectedAccount.characters.get(k).name, selectedAccount.characters.get(k).level, selectedAccount.characters.get(k).XP);
+                        this.m = new Mage(selectedAccount.characters.get(k).name, selectedAccount.characters.get(k).level, selectedAccount.characters.get(k).XP);
+                    }
+                    if (selectedAccount.characters.get(k).profession.equals("Rogue")) {
+                        this.r = new Rogue(selectedAccount.characters.get(k).name, selectedAccount.characters.get(k).level, selectedAccount.characters.get(k).XP);
+                    }
                 }
                 //break;
             }
@@ -163,30 +164,40 @@ public class Game {
         Random rand = new Random();
         int x = rand.nextInt(2);
         boolean valid2 = false;
+        boolean verifyListEmptybefore = false;
         if(x == 1 && !e.Abilities.isEmpty()) {
 
-            int y = rand.nextInt(e.Abilities.size()) + 1;
+            int y = rand.nextInt(e.Abilities.size());
             String spe = e.Abilities.get(y).name;
             if(spe.equals("Fire")) {
                 Fire f = new Fire();
-                if(e.UseAbility(f,this.player,y) == 1)
+                if(e.UseAbility(f,this.player,y) == 1) {
                     valid2 = true;
-                System.out.println("Enemy attacked with ability Fire!");
+                    System.out.println("Enemy attacked with ability Fire!");
+                    if(e.Abilities.isEmpty())
+                        verifyListEmptybefore = true;
+                }
             }
             else if(spe.equals("Ice")) {
                 Ice i = new Ice();
-                if(e.UseAbility(i,this.player,y) == 1)
+                if(e.UseAbility(i,this.player,y) == 1) {
                     valid2 = true;
-                System.out.println("Enemy attacked with ability Ice!");
+                    System.out.println("Enemy attacked with ability Ice!");
+                    if(e.Abilities.isEmpty())
+                        verifyListEmptybefore = true;
+                }
             }
             else if(spe.equals("Earth")) {
                 Earth ea = new Earth();
-                if(e.UseAbility(ea, this.player,y) == 1)
+                if(e.UseAbility(ea, this.player,y) == 1) {
                     valid2 = true;
-                System.out.println("Enemy attacked with ability Earth!");
+                    System.out.println("Enemy attacked with ability Earth!");
+                    if(e.Abilities.isEmpty())
+                        verifyListEmptybefore = true;
+                }
             }
         }
-        if(x == 0 || (x == 1 && valid2 == false) || (x == 1 && e.Abilities.isEmpty())) {//atac normal
+        if(x == 0 || (x == 1 && valid2 == false) || (x == 1 && e.Abilities.isEmpty() && verifyListEmptybefore == false)) {//atac normal
             int pdmg = e.getDamage(this.player, null);
             this.player.receiveDamage(pdmg);
         }
@@ -202,9 +213,9 @@ public class Game {
             System.out.println(this.player.getDetails());
             System.out.println(e.getEDetails());
 
-            choice = null;
+            choice = "";
             nr = -1;
-            while(choice == null) {
+            while(choice.equals("")) {
                 try {
                     choice = showFightOptions();
                 } catch (InvalidCommandException ex) {
@@ -230,7 +241,7 @@ public class Game {
                     Fire f = new Fire();
                     if(this.player.UseAbility(f,e,nr - 1) == 1)
                         usedab = true;
-                    System.out.println("Used Ability fire");
+                    //System.out.println("Used Ability fire");
 
                 }
                 else {
@@ -246,6 +257,7 @@ public class Game {
                             if (this.player.UseAbility(ea, e, nr - 1) == 1)
                                 usedab = true;
                             System.out.println("Used Ability earth");
+
                         }
                     }
                 }
@@ -262,6 +274,9 @@ public class Game {
             //Se incheie turul caracterului incepe atacul inamicului
             if(e.currentHealth <= 0) {
                 System.out.println("You defetead the enemy");
+                if(this.player.Abilities.isEmpty())
+                    this.player.PopulateAbilities();
+
                 break;
             }
             System.out.println("Enemy attacks");
@@ -273,7 +288,7 @@ public class Game {
     
 
 
-    public void Play() throws Exception {
+    public void Play(String s) throws Exception {
         if(this.gameOver == true) {
             return;
         }
@@ -287,7 +302,24 @@ public class Game {
         int py = rand.nextInt(5) + 5;
         px = 5;
         py = 5;
-        this.Map = Grid.Generation(px, py);
+        if(s.equals("Main"))
+            this.Map = Grid.Generation(px, py);
+        else {
+            this.Map = Grid.Generation(5, 5);
+            for (int i = 0; i < 5; i++)
+                for (int j = 0; j < 5; j++)
+                    this.Map.get(i).get(j).type = CellEntityType.VOID;
+            this.Map.get(0).get(0).type = CellEntityType.PLAYER;
+            this.Map.get(0).get(3).type = CellEntityType.SANCTUARY;
+            this.Map.get(3).get(0).type = CellEntityType.SANCTUARY;
+            this.Map.get(1).get(3).type = CellEntityType.SANCTUARY;
+            this.Map.get(4).get(3).type = CellEntityType.SANCTUARY;
+            this.Map.get(3).get(4).type = CellEntityType.ENEMY;
+            this.Map.get(4).get(4).type = CellEntityType.PORTAL;
+        }
+
+
+
         for (int i = 0; i < px; i++)
             for (int j = 0; j < py; j++) {
                 if(this.Map.get(i).get(j).type == CellEntityType.PLAYER) {

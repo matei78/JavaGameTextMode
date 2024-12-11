@@ -61,8 +61,11 @@ public class Enemy extends Entity {
             Spell i = new Ice();
             Spell f = new Fire();
             Random rand = new Random();
+            int j = rand.nextInt(2);
             int damage = 0;
             damage = damage + this.DefaultDamageGiven;
+            if(j == 1)
+                damage = damage * 2;
             if (ability == null) {
                 return damage;
             }

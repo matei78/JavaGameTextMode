@@ -20,6 +20,10 @@ public abstract class Entity implements Battle {
         this.ice = ice;
         this.earth = earth;
         this.Abilities = new ArrayList<>();
+        PopulateAbilities();
+    }
+
+    public void PopulateAbilities() {
         Random rand = new Random();
         int x = rand.nextInt(3) + 1;
         Spell d1 = new Fire();
@@ -38,6 +42,7 @@ public abstract class Entity implements Battle {
                 this.Abilities.add(d3);
         }
     }
+
 
     public void RegenHealth(int x) {
         this.currentHealth = this.currentHealth + x;

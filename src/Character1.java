@@ -22,7 +22,7 @@ public abstract class Character1 extends Entity {
     }
 
     public String getDetails() {
-        return this.name + " " + this.profession + " " + this.currentHealth + " " + this.currentMana + " " + this.level + " " + this.Strength + " " + this.Charisma + " " + this.Dexterity;
+        return this.name + " " + this.profession + " " + this.currentHealth + " " + this.currentMana + " " + this.level + " " + this.Strength + " " + this.Charisma + " " + this.Dexterity + "   " + " " + this.fire + " " + this.earth + " " + this.ice;
     }
 
    public String toString() {
@@ -72,18 +72,25 @@ public abstract class Character1 extends Entity {
 
         if(ability instanceof Earth) {
             if(enemy.earth == false) {
+
                 damage = damage + ability.damage;
             }
+            else
+                System.out.println("Enemy dodged Earth");
         }
         if(ability instanceof Ice) {
             if(enemy.ice == false) {
                 damage = damage + ability.damage;
             }
+            else
+                System.out.println("Enemy dodged Ice");
         }
         if(ability instanceof Fire) {
             if(enemy.fire == false) {
                 damage = damage + ability.damage;
             }
+            else
+                System.out.println("Enemy dodged Fire");
         }
         if(damage > 100)
             damage = 100;

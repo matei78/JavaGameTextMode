@@ -1,4 +1,4 @@
-public class main {
+public class Test {
     public static void main(String[] args) throws Exception {
         Game game = new Game();
         try {
@@ -8,6 +8,8 @@ public class main {
             System.out.println("Invalid command");
         }
         if(game.gameOver == false)
-            game.Play("Main");
+            game.Play("Test");
     }
+
+
 }
